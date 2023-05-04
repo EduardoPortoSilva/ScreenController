@@ -5,7 +5,7 @@
     "kind": "Directory"
   },
   "applicationId": "com.gynammus.screencontroller",
-  "variantName": "debug",
+  "variantName": "",
   "elements": [
     {
       "type": "SINGLE",
@@ -13,7 +13,7 @@
       "attributes": [],
       "versionCode": 1,
       "versionName": "1.0",
-      "outputFile": "app-debug.apk"
+      "outputFile": "app.apk"
     }
   ],
   "elementType": "File"
