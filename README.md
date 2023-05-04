@@ -1,5 +1,6 @@
 # ScreenController
-Server and app to controll a desktop by an mobile devide or another desktop. Just works in local connections. This programs had some vulnerabilities so **DON`T USE IN OPEN NETWORKS** or anyone in the network can see your screen bruteforcing the key
+Server and app to controll a desktop by an mobile devide or another desktop. Just works in local connections.  
+This programs had some vulnerabilities so **DON`T USE IN OPEN NETWORKS** or anyone in the network can see your screen bruteforcing the key
 
 ## Dependencies
 This project uses some python libs, to install then execute the follow commands:
