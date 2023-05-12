@@ -122,16 +122,25 @@ sct = mss()
 async def handler(websocket):
     global res_correction
     async for message in websocket:
+        print(message)
         split_msg = message.split(";")
         if split_msg[0] not in ("OK", "Connected"):
             if key_connection == "" or key_connection == split_msg[0]:
-                resp = float(split_msg[1])
+                resp = float(split_msg[2])
                 x = int(resp)
                 y = (resp - x) * 1000
-                x = x * res_correction[0]
+                x = x * res_correction[0] - 1920
                 y = y * res_correction[1]
-                pyautogui.moveTo(x - 1920, y)
-                pyautogui.click()
+                if split_msg[1] != "drag":
+                    pyautogui.click(x=x, y=y, button=split_msg[1])
+                else:
+                    pyautogui.moveTo(x, y)
+                    resp = float(split_msg[3])
+                    x = int(resp)
+                    y = (resp - x) * 1000
+                    x = x * res_correction[0] - 1920
+                    y = y * res_correction[1]
+                    pyautogui.moveTo(x, y, 2)
         else:
             print("Connected")
             screen_res_client = split_msg[1].split("*")

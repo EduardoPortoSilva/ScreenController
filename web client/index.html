@@ -6,7 +6,8 @@
   <title></title>
 </head>
 <body style="margin: 0px;width:100%; height: 100%;">
-<div id="inputs" style="margin: 0px;width:100%; height: 100%;">
+<img id="video_img" style="width:100%; height: 100%;">
+<div id="inputs">
   <label for="IP_ADDRESS">Insert the server IP Address</label>
   <input type="text" name="IP_ADDRESS" id="IP_ADDRESS" value="192.168.0.3"><br>
   <label for="PORT_IMAGE">Insert the image port</label>
@@ -15,6 +16,10 @@
   <input type="text" name="PORT_MOUSE" id="PORT_MOUSE" value="433"><br>
   <label for="CONN_KEY">Insert the connection key</label>
   <input type="text" name="CONN_KEY" id="CONN_KEY" value=""><br>
+  <label for="TIME_CLICK">Insert the time to right click</label>
+  <input type="text" name="TIME_CLICK" id="TIME_CLICK" value="0.5"><br>
+  <label for="DIST_DRAG">Insert the distance to drag</label>
+  <input type="text" name="DIST_DRAG" id="DIST_DRAG" value="200"><br>
   <input type="button" onclick="set_config()" value="Connect">
 </div>
 <script type="text/javascript">
@@ -23,6 +28,18 @@
     let port_mouse = 0;
     let socket = 0;
     let key = 0;
+    let min_dist_drag = 0;
+    let delta_time_right_click = 0;
+    let x_origin = 0, y_origin = 0;
+    let time_origin = 0;
+
+    function deltaDist(x2,y2){
+      return Math.sqrt(Math.pow(x_origin-x2,2)+Math.pow(y_origin-y2,2))
+    }
+
+    function deltaTimeSeconds(final_time){
+      return (final_time - time_origin)/1000
+    }
 
     function set_config(){
       ip_address = document.getElementById("IP_ADDRESS").value;
@@ -33,6 +50,7 @@
       document.body.style.backgroundSize = ' 100% 100%';
       document.body.style.backgroundRepeat = 'no-repeat';
       document.body.style.backgroundAttachment = "fixed";
+      document.getElementById("inputs").innerHTML = ""
       socket = new WebSocket("ws://"+ip_address+":"+port_mouse+"/")
       socket.onopen = function(e) {
         console.log("[open] Connection established");
@@ -46,9 +64,33 @@
           console.log('[close] Connection died');
         }
       };
-      document.addEventListener('click', function(e) {
-        socket.send(key+";"+event.clientX+"."+event.clientY);
+      document.addEventListener('mousedown', function(event) {
+        x_origin = event.clientX
+        y_origin = event.clientY
+        time_origin = event.timeStamp
+        isDown = true;
       });
+
+      document.addEventListener('mousemove', function(event) {
+        isDragging = true;
+      });
+
+      document.addEventListener('mouseup', function(event) {
+        let message = "left"
+        if (isDown & isDragging & deltaDist(event.clientX,event.clientY) > min_dist_drag) {
+          message = "drag;"+x_origin+"."+y_origin;
+        }else if (deltaTimeSeconds(event.timeStamp) > delta_time_right_click) {
+          message = "right"
+        }
+        isDragging = false;
+        isDown = false;
+        socket.send(key+";"+message+";"+event.clientX+"."+event.clientY);
+      });
+      document.addEventListener("contextmenu", function(event) {
+        event.preventDefault();
+        socket.send(key+";right;"+event.clientX+"."+event.clientY);
+      });
+
       document.getElementById("inputs").remove()
     }
   </script>
